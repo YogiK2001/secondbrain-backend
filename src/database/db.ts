@@ -8,3 +8,18 @@ if (!process.env.MONGODB_URI) {
 }
 
 mongoose.connect(process.env.MONGODB_URI);
+
+const userSchema = new Schema({
+    username: { 
+        type: String, 
+        unique: true,
+        minlength: 3,
+    },
+    password: { 
+        type: String,
+        minlength: 8,
+    }
+})
+
+export const UserModel = model('User', userSchema);
+
