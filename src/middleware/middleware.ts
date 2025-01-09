@@ -4,9 +4,9 @@ import { JWT_SECRET } from "../config";
 
 
 
-interface CustomJwtPayload extends JwtPayload {
-    id: string;
-} 
+// interface CustomJwtPayload extends JwtPayload {
+//     id: string;
+// } 
 
 export const userMiddleware = (req: Request, res:Response, next:NextFunction) => {
     const header = req.headers["authorization"];
@@ -17,9 +17,9 @@ export const userMiddleware = (req: Request, res:Response, next:NextFunction) =>
         });
     }
     
-    const decode = jwt.verify(header, JWT_SECRET ) as CustomJwtPayload;
+    const decode = jwt.verify(header, JWT_SECRET )
     if(decode){
-        req.userId = decode.id;
+        req.userId = (decode as JwtPayload).id;
         next();
     } else {
         res.status(403).json({
