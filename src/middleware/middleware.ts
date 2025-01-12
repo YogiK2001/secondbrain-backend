@@ -19,7 +19,13 @@ export const userMiddleware = (req: Request, res:Response, next:NextFunction) =>
     
     const decode = jwt.verify(header, JWT_SECRET )
     if(decode){
-        req.userId = (decode as JwtPayload).id;
+        if (typeof decode === "string") {
+            res.status(403).json({
+                message: "You are not logged in"
+            })
+            return;    
+        }
+        req.userId = (decode as JwtPayload).id as string;
         next();
     } else {
         res.status(403).json({
