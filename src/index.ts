@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import { JWT_SECRET } from './config';
 import jwt from 'jsonwebtoken';
 import { userMiddleware } from './middleware/middleware';
-import { UserModel} from './database/db';
+import { UserModel, ContentModel, NoteModel, TagModel, LinkModel} from './database/db';
 import 'dotenv/config'
 import { z } from "zod";
 import bcrypt from 'bcrypt';
@@ -104,7 +104,32 @@ app.post('/api/v1/signin', async (req, res) => {
 
 });
 app.post('/api/v1/content', userMiddleware,  async (req, res) => {
+    const { link, type, title, tag } = req.body
 
+    const tagsId = [];
+
+    for( const tagName in tag ) {
+        let existingTag = await TagModel.findOne({ name: tagName });
+        if( !existingTag) {
+            existingTag = await TagModel.create({
+                name: tagName
+            })
+        }
+        tagsId.push(existingTag._id);
+    }
+
+    const content = await ContentModel.create({
+        link,
+        type,
+        title,
+        userId: req.userId,
+        tag: tagsId
+
+    })
+
+    res.json({
+        message: "Content Added"
+    })
 // });
 // app.get('/api/v1/content', userMiddleware,  async (req, res) => {
 

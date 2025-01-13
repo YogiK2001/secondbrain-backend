@@ -21,14 +21,14 @@ const NoteSchemaNew = new Schema({
     title: { type: String},
     content: { type: String, required: true },
     userId: { type: mongoose.Types.ObjectId, ref: 'User'},
-    tags: [{type: mongoose.Types.ObjectId, ref: 'Tag'}]
+    tags: [{type: mongoose.Types.ObjectId, ref: 'Tags'}]
 });
 
 
 const ContentSchema = new Schema({
     title: String,
     link: String,
-    tags: [{type: mongoose.Types.ObjectId, ref: 'Tag'}],
+    tags: [{type: mongoose.Types.ObjectId, ref: 'Tags'}],
     type: String,
     userId: {type: mongoose.Types.ObjectId, ref: 'User', required: true },
 })
