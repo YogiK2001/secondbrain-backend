@@ -1,6 +1,7 @@
 import express from 'express';
-
+import { User } from './interface/interface'
 import mongoose from 'mongoose';
+import { JWT_SECRET } from './config';
 import jwt from 'jsonwebtoken';
 import { userMiddleware } from './middleware/middleware';
 import { UserModel} from './database/db';
@@ -12,23 +13,20 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// type SignupInput = z.infer<typeof requiredResponse>;
-
+const signupSchema = z.object({
+    username: z.string().min(1, "Username is required"),
+    password: z.string()
+        .min(3, { message: "Password must be at least 3 characters long" })
+        .max(20, { message: "Password must not exceed 20 characters" })
+        .regex(/(?=.*[a-z])/, { message: "Password must contain at least one lowercase letter" })
+        .regex(/(?=.*[A-Z])/, { message: "Password must contain at least one uppercase letter" })
+        .regex(/(?=.*\d)/, { message: "Password must contain at least one number" })
+        .regex(/(?=.*[!@#$%^&*(),.?":{}|<>])/, { message: "Password must contain at least one special character" })
+});
 app.post('/api/v1/signup', async (req, res)=> {
-    // Schema validation
-    const signupSchema = z.object({
-        username: z.string().min(1, "Username is required"),
-        password: z.string()
-            .min(3, { message: "Password must be at least 3 characters long" })
-            .max(20, { message: "Password must not exceed 20 characters" })
-            .regex(/(?=.*[a-z])/, { message: "Password must contain at least one lowercase letter" })
-            .regex(/(?=.*[A-Z])/, { message: "Password must contain at least one uppercase letter" })
-            .regex(/(?=.*\d)/, { message: "Password must contain at least one number" })
-            .regex(/(?=.*[!@#$%^&*(),.?":{}|<>])/, { message: "Password must contain at least one special character" })
-    });
-
+    
     try {
-        // Validate request body
+
         const validateUser = signupSchema.safeParse(req.body);
 
         if (!validateUser.success) {
@@ -39,7 +37,6 @@ app.post('/api/v1/signup', async (req, res)=> {
             return;
         }
 
-        // Check for existing user
         const existingUser = await UserModel.findOne({ 
             username: validateUser.data.username 
         });
@@ -50,7 +47,6 @@ app.post('/api/v1/signup', async (req, res)=> {
             });
         }
 
-        // Hash password and create user
         const hashedPassword = await bcrypt.hash(validateUser.data.password, 10);
 
         const user = await UserModel.create({
@@ -58,10 +54,10 @@ app.post('/api/v1/signup', async (req, res)=> {
             password: hashedPassword
         });
 
-        // Generate JWT token
+
         const token = jwt.sign(
             { id: user._id }, 
-            process.env.JWT_SECRET as string
+            JWT_SECRET
         );
 
         res.status(200).json({
@@ -79,10 +75,35 @@ app.post('/api/v1/signup', async (req, res)=> {
 
 
 app.post('/api/v1/signin', async (req, res) => {
+    try{
+        const { username, password } = req.body;
+
+    const existingUser = await UserModel.findOne({
+        username: username,
+        password: password
+    })
+
+    if(existingUser) {
+        const token = jwt.sign({
+            id: existingUser._id,
+        }, JWT_SECRET)
+
+        res.json({
+            token
+        })
+    } else {
+        res.status(403).json({
+            message: "Invalid Credentials"
+        });
+    }
+    } catch (e) {
+        res.status(500).json({
+            message: "Internal Server Error"
+    });
+    }
 
 });
-
-// app.post('/api/v1/content', userMiddleware,  async (req, res) => {
+app.post('/api/v1/content', userMiddleware,  async (req, res) => {
 
 // });
 // app.get('/api/v1/content', userMiddleware,  async (req, res) => {
