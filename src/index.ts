@@ -130,7 +130,7 @@ app.post('/api/v1/content', userMiddleware,  async (req, res) => {
     res.json({
         message: "Content Added"
     })
-// });
+});
 // app.get('/api/v1/content', userMiddleware,  async (req, res) => {
 
 // });
@@ -148,6 +148,4 @@ app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
-// function cors(): any {
-//     throw new Error('Function not implemented.');
-// }
+
