@@ -103,7 +103,9 @@ app.post('/api/v1/signin', async (req, res) => {
     }
 
 });
-app.post('/api/v1/content', userMiddleware,  async (req, res) => {
+import { Request, Response } from 'express';
+
+app.post('/api/v1/content', userMiddleware,  async (req: Request, res: Response): Promise<void> => {
     const { link, type, title, tag } = req.body
 
     const tagsId = [];
@@ -118,7 +120,7 @@ app.post('/api/v1/content', userMiddleware,  async (req, res) => {
         tagsId.push(existingTag._id);
     }
 
-    const content = await ContentModel.create({
+    await ContentModel.create({
         link,
         type,
         title,
@@ -131,6 +133,24 @@ app.post('/api/v1/content', userMiddleware,  async (req, res) => {
         message: "Content Added"
     })
 });
+
+// app.post("/api/v1/content", userMiddleware, async (req, res) => {
+//     const link = req.body.link;
+//     const type = req.body.type;
+//     await ContentModel.create({
+//         link,
+//         type,
+//         title: req.body.title,
+//         userId: req.userId,
+//         tags: []
+//     })
+
+//     res.json({
+//         message: "Content added"
+//     })
+    
+// })
+
 // app.get('/api/v1/content', userMiddleware,  async (req, res) => {
 
 // });

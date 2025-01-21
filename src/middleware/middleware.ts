@@ -1,15 +1,9 @@
-import express, { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { JWT_SECRET } from "../config";
 
 
 
-
-// interface CustomJwtPayload extends JwtPayload {
-//     id: string;
-// } 
-const app = express();
-app.use(express.json());
 export const userMiddleware = (req: Request, res:Response, next:NextFunction) => {
     const header = req.headers["authorization"];
     if (!header) {
@@ -18,25 +12,21 @@ export const userMiddleware = (req: Request, res:Response, next:NextFunction) =>
         });
         return;
     }
-    const decode = jwt.verify(header, JWT_SECRET )
+    try {
+    const decoded = jwt.verify(header as string, JWT_SECRET ) as JwtPayload;
+      if(!decoded.id)  {
         res.status(401).json({
-            message: "No token provided"
+            message: "Invalid Token Payload"
         });
-    
-    if(decode){
-        if (typeof decode === "string") {
-            res.status(403).json({
-                message: "You are not logged in"
-            })
-            return;    
-        }
-        req.userId = (decode as JwtPayload).id as string;
-        next();
-    } else {
-        res.status(403).json({
-            message: "Unauthorized"
-        })
     }
+    
+    req.userId = (decoded as JwtPayload).id
+    next();
+    
+ } catch(e) {
+    res.status(403).json({
+        message: "Unauthorized"
+    })
+ }
 }
 
-app.use(userMiddleware)
