@@ -1,15 +1,14 @@
 import express from 'express';
-import { User } from './interface/interface'
-import mongoose from 'mongoose';
-import { Request, Response } from 'express';
 import { JWT_SECRET } from './config';
 import jwt from 'jsonwebtoken';
 import { userMiddleware } from './middleware/middleware';
 import { UserModel, ContentModel, NoteModel, TagModel, LinkModel} from './database/db';
 import 'dotenv/config'
+import './types/express.d';
 import { z } from "zod";
 import bcrypt from 'bcrypt';
 import cors from 'cors';
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -24,6 +23,7 @@ const signupSchema = z.object({
         .regex(/(?=.*\d)/, { message: "Password must contain at least one number" })
         .regex(/(?=.*[!@#$%^&*(),.?":{}|<>])/, { message: "Password must contain at least one special character" })
 });
+
 app.post('/api/v1/signup', async (req, res)=> {
     
     try {
@@ -106,7 +106,7 @@ app.post('/api/v1/signin', async (req, res) => {
 });
 
 
-// app.post('/api/v1/content', userMiddleware,  async (req: Request, res: Response): Promise<void> => {
+// app.post('/api/v1/content', userMiddleware,  async (req,  res) => {
 //     const { link, type, title, tag } = req.body
 
 //     const tagsId = [];
@@ -135,7 +135,7 @@ app.post('/api/v1/signin', async (req, res) => {
 //     })
 // });
 
-app.post("/api/v1/content", userMiddleware, async (req:Request, res) => {
+app.post("/api/v1/content", userMiddleware, async (req, res) => {
     const link = req.body.link;
     const type = req.body.type;
     await ContentModel.create({
