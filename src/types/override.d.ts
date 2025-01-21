@@ -1,9 +1,7 @@
 export {};
 
-declare global {
-    namespace Express {
-      export interface Request {
+declare namespace Express { 
+  export interface Request {
           userId?: String;
       }
     }
-}
