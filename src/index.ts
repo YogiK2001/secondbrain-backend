@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { JWT_SECRET } from './config';
 import jwt from 'jsonwebtoken';
 import { userMiddleware } from './middleware/middleware';
@@ -75,7 +75,7 @@ app.post('/api/v1/signup', async (req, res)=> {
 });
 
 
-app.post('/api/v1/signin', async (req, res) => {
+app.post('/api/v1/signin', async (req: Request, res: Response) => {
     try{
         const { username, password } = req.body;
 
