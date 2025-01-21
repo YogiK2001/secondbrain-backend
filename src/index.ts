@@ -1,6 +1,7 @@
 import express from 'express';
 import { User } from './interface/interface'
 import mongoose from 'mongoose';
+import { Request, Response } from 'express';
 import { JWT_SECRET } from './config';
 import jwt from 'jsonwebtoken';
 import { userMiddleware } from './middleware/middleware';
@@ -103,53 +104,53 @@ app.post('/api/v1/signin', async (req, res) => {
     }
 
 });
-import { Request, Response } from 'express';
 
-app.post('/api/v1/content', userMiddleware,  async (req: Request, res: Response): Promise<void> => {
-    const { link, type, title, tag } = req.body
 
-    const tagsId = [];
+// app.post('/api/v1/content', userMiddleware,  async (req: Request, res: Response): Promise<void> => {
+//     const { link, type, title, tag } = req.body
 
-    for( const tagName in tag ) {
-        let existingTag = await TagModel.findOne({ name: tagName });
-        if( !existingTag) {
-            existingTag = await TagModel.create({
-                name: tagName
-            })
-        }
-        tagsId.push(existingTag._id);
-    }
+//     const tagsId = [];
 
-    await ContentModel.create({
-        link,
-        type,
-        title,
-        userId: req.userId,
-        tag: tagsId
+//     for( const tagName in tag ) {
+//         let existingTag = await TagModel.findOne({ name: tagName });
+//         if( !existingTag) {
+//             existingTag = await TagModel.create({
+//                 name: tagName
+//             })
+//         }
+//         tagsId.push(existingTag._id);
+//     }
 
-    })
-
-    res.json({
-        message: "Content Added"
-    })
-});
-
-// app.post("/api/v1/content", userMiddleware, async (req, res) => {
-//     const link = req.body.link;
-//     const type = req.body.type;
 //     await ContentModel.create({
 //         link,
 //         type,
-//         title: req.body.title,
+//         title,
 //         userId: req.userId,
-//         tags: []
+//         tag: tagsId
+
 //     })
 
 //     res.json({
-//         message: "Content added"
+//         message: "Content Added"
 //     })
+// });
+
+app.post("/api/v1/content", userMiddleware, async (req:Request, res) => {
+    const link = req.body.link;
+    const type = req.body.type;
+    await ContentModel.create({
+        link,
+        type,
+        title: req.body.title,
+        userId: req.userId,
+        tags: []
+    })
+
+    res.json({
+        message: "Content added"
+    })
     
-// })
+})
 
 // app.get('/api/v1/content', userMiddleware,  async (req, res) => {
 
