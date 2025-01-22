@@ -139,7 +139,8 @@ app.post('/api/v1/signin', async (req: Request, res: Response) => {
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
     const link = req.body.link;
     const type = req.body.type;
-    const userId = req.userId;;
+    //ts-ignore
+    const userId = req.userId;
     await ContentModel.create({
         link,
         type,
