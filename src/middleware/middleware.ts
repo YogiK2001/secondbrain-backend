@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from "express";
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+
+// interface CustomRequest extends Request {
+//     userId?: string;
+// }
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { JWT_SECRET } from "../config";
 
 
 
@@ -14,7 +18,8 @@ export const userMiddleware = (req: Request, res:Response, next:NextFunction) =>
             })
             return;    
         }
-        req.userId = (decoded as JwtPayload).id;
+        
+        req.userId = decoded.id as string;
         next()
     } else {
         res.status(403).json({

@@ -1,13 +1,14 @@
-import express, { Request, Response } from 'express';
-import { JWT_SECRET } from './config';
-import jwt from 'jsonwebtoken';
-import { userMiddleware } from './middleware/middleware';
-import { UserModel, ContentModel, NoteModel, TagModel, LinkModel} from './database/db';
-import 'dotenv/config'
-import './types/express.d';
-import { z } from "zod";
-import bcrypt from 'bcrypt';
-import cors from 'cors';
+import express, { Request, Response } from "express";
+import { z } from 'zod'
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import { ContentModel, LinkModel, UserModel } from "./database/db";
+import { userMiddleware } from "./middleware/middleware";
+import cors from "cors";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 
 const app = express();
 app.use(express.json());
@@ -55,10 +56,10 @@ app.post('/api/v1/signup', async (req, res)=> {
             password: hashedPassword
         });
 
-
+            process.env.JWT_SECRET as string
         const token = jwt.sign(
             { id: user._id }, 
-            JWT_SECRET
+            process.env.JWT_SECRET as string
         );
 
         res.status(200).json({
@@ -87,7 +88,7 @@ app.post('/api/v1/signin', async (req: Request, res: Response) => {
     if(existingUser) {
         const token = jwt.sign({
             id: existingUser._id,
-        }, JWT_SECRET)
+        }, process.env.JWT_SECRET as string)
 
         res.json({
             token
@@ -138,11 +139,12 @@ app.post('/api/v1/signin', async (req: Request, res: Response) => {
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
     const link = req.body.link;
     const type = req.body.type;
+    const userId = req.userId;;
     await ContentModel.create({
         link,
         type,
         title: req.body.title,
-        userId: req.userId,
+        userId,
         tags: []
     })
 
@@ -152,9 +154,16 @@ app.post("/api/v1/content", userMiddleware, async (req, res) => {
     
 })
 
-// app.get('/api/v1/content', userMiddleware,  async (req, res) => {
-
-// });
+app.get("/api/v1/content", userMiddleware, async (req, res) => {
+    // @ts-ignore
+    const userId = req.userId;
+    const content = await ContentModel.find({
+        userId: userId
+    }).populate("userId", "username")
+    res.json({
+        content
+    })
+})
 
 // app.delete('/api/v1/content', userMiddleware,  async (req, res) => {
 
