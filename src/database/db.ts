@@ -19,7 +19,7 @@ const UserSchema = new Schema({
 
 const NoteSchemaNew = new Schema({
     title: { type: String},
-    content: { type: String, required: true },
+    note: { type: String, required: true },
     userId: { type: mongoose.Types.ObjectId, ref: 'User'},
     tags: [{type: mongoose.Types.ObjectId, ref: 'Tags'}]
 });
