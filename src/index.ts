@@ -232,6 +232,30 @@ app.post("/api/v1/note", userMiddleware, async (req, res) => {
   }
 });
 
+app.get("/api/v1/note", userMiddleware, async (req, res) => {
+  // @ts-ignore
+  const userId = req.userId;
+  const content = await NoteModel.find({
+    userId: userId,
+  }).populate("userId", "username");
+  res.json({
+    content,
+  });
+});
+
+app.delete("/api/v1/note", userMiddleware, async (req, res) => {
+  const contentId = req.body.contentId;
+
+  await NoteModel.deleteOne({
+    contentId,
+    userId: req.userId,
+  });
+
+  res.json({
+    message: "Note Deleted",
+  });
+});
+
 // app.post('/api/v1/brain/share', userMiddleware,  async (req, res) => {});
 
 // app.get('/api/v1/brain/:sharelink', userMiddleware,  async (req, res) => {});
